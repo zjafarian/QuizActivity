@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">QuizActivity</string>
+    <string name="question_text">تهران پايتخت ايران است</string>
+    <string name="btn_true">درست</string>
+    <string name="btn_false">نادرست</string>
+    <string name="message_correct">پاسخ درست است</string>
+    <string name="message_in_correct">پاسخ اشتباه است</string>
+</resources>
