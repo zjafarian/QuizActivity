@@ -119,16 +119,8 @@ public class QuizActivity extends AppCompatActivity {
                     mButton_false.setEnabled(false);
                 else mButton_false.setEnabled(true);
                 updateQuestions();
-                if (disableCounter == mQuestionsBank.length) {
-                    if (mLinearLayout_game.getVisibility() == View.VISIBLE &&
-                            mLinearLayout_over.getVisibility() == View.GONE) {
-                        mLinearLayout_game.setVisibility(View.GONE);
-                        mLinearLayout_score.setVisibility(View.GONE);
-                        mLinearLayout_over.setVisibility(View.VISIBLE);
-                        mTextView_result.setText(String.valueOf(counterScore));
-                    }
+                availableLayout();
 
-                }
             }
         });
 
@@ -143,16 +135,8 @@ public class QuizActivity extends AppCompatActivity {
                     mButton_false.setEnabled(false);
                 else mButton_false.setEnabled(true);
                 updateQuestions();
-                if (disableCounter == mQuestionsBank.length) {
-                    if (mLinearLayout_game.getVisibility() == View.VISIBLE &&
-                            mLinearLayout_over.getVisibility() == View.GONE) {
-                        mLinearLayout_game.setVisibility(View.GONE);
-                        mLinearLayout_score.setVisibility(View.GONE);
-                        mLinearLayout_over.setVisibility(View.VISIBLE);
-                        mTextView_result.setText(counterScore);
-                    }
+                availableLayout();
 
-                }
             }
         });
 
@@ -161,16 +145,7 @@ public class QuizActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mCurrentIndex = 0;
                 updateQuestions();
-                if (disableCounter == mQuestionsBank.length) {
-                    if (mLinearLayout_game.getVisibility() == View.VISIBLE &&
-                            mLinearLayout_over.getVisibility() == View.INVISIBLE) {
-                        mLinearLayout_game.setVisibility(View.GONE);
-                        mLinearLayout_score.setVisibility(View.GONE);
-                        mLinearLayout_over.setVisibility(View.VISIBLE);
-                        mTextView_result.setText(counterScore);
-
-                    }
-                }
+                availableLayout();
             }
         });
 
@@ -179,16 +154,7 @@ public class QuizActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mCurrentIndex = mQuestionsBank.length - 1;
                 updateQuestions();
-                if (disableCounter == mQuestionsBank.length) {
-                    if (mLinearLayout_game.getVisibility() == View.VISIBLE &&
-                            mLinearLayout_over.getVisibility() == View.INVISIBLE) {
-                        mLinearLayout_game.setVisibility(View.GONE);
-                        mLinearLayout_score.setVisibility(View.GONE);
-                        mLinearLayout_over.setVisibility(View.VISIBLE);
-                        mTextView_result.setText(counterScore);
-                    }
-
-                }
+                availableLayout();
             }
         });
         mButton_reset.setOnClickListener(new View.OnClickListener() {
@@ -236,6 +202,19 @@ public class QuizActivity extends AppCompatActivity {
         }
         disableCounter++;
 
+    }
+
+    private void availableLayout() {
+        if (disableCounter == mQuestionsBank.length) {
+            if (mLinearLayout_game.getVisibility() == View.VISIBLE &&
+                    mLinearLayout_over.getVisibility() == View.GONE) {
+                mLinearLayout_game.setVisibility(View.GONE);
+                mLinearLayout_score.setVisibility(View.GONE);
+                mLinearLayout_over.setVisibility(View.VISIBLE);
+                mTextView_result.setText(String.valueOf(counterScore));
+            }
+
+        }
     }
 
 
