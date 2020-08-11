@@ -4,62 +4,57 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
     tools:context=".controller.QuizActivity">
 
 
     <LinearLayout
-        android:id="@+id/layout_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|left"
-        android:layout_marginBottom="150dp"
         android:gravity="top|left"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <ImageButton
+            android:id="@+id/btn_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:src="@drawable/ic_score" />
+
+        <TextView
+            android:id="@+id/textView_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="top|left"
             android:gravity="top|left"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/btn_score"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:src="@drawable/ic_score" />
-
-            <TextView
-                android:id="@+id/textView_score"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|top"
-                android:gravity="center|top"
-                android:padding="4dp" />
-        </LinearLayout>
+            android:padding="4dp"
+            tools:text="score" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_question"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="150dp"
+        android:gravity="center"
+        android:paddingBottom="8dp"
+        android:textSize="20sp"
+        tools:text="question" />
 
     <LinearLayout
         android:id="@+id/layout_game"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|center_horizontal|center_vertical"
         android:gravity="center|center_horizontal|center_vertical"
         android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/text_question"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center|center_horizontal|center_vertical"
-            android:paddingBottom="8dp"
-            android:textSize="20sp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <Button
@@ -83,6 +78,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <ImageButton
@@ -120,6 +116,12 @@
         android:gravity="center"
         android:orientation="vertical">
 
+        <ImageButton
+            android:id="@+id/btn_reset_game"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_resart" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -137,13 +139,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp" />
-        </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/btn_reset_game"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_resart" />
+        </LinearLayout>
 
     </LinearLayout>
 
