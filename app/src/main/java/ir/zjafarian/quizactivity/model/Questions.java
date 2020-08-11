@@ -1,27 +1,13 @@
 package ir.zjafarian.quizactivity.model;
 
-public class Questions implements java.io.Serializable {
+import java.io.Serializable;
+
+public class Questions implements Serializable {
     private int mQuestionResId;
     private boolean mIsAnswerTrueOrFalse;
     private boolean trueAnswer;
     private boolean falseAnswer;
-
-    public boolean isTrueAnswer() {
-        return trueAnswer;
-    }
-
-    public void setTrueAnswer(boolean trueAnswer) {
-        this.trueAnswer = trueAnswer;
-    }
-
-    public boolean isFalseAnswer() {
-        return falseAnswer;
-    }
-
-    public void setFalseAnswer(boolean falseAnswer) {
-        this.falseAnswer = falseAnswer;
-    }
-
+    private boolean isUseCheat = false;
 
     public Questions() {
     }
@@ -41,6 +27,30 @@ public class Questions implements java.io.Serializable {
 
     public boolean isAnswerTrueOrFalse() {
         return mIsAnswerTrueOrFalse;
+    }
+
+    public boolean isTrueAnswer() {
+        return trueAnswer;
+    }
+
+    public void setTrueAnswer(boolean trueAnswer) {
+        this.trueAnswer = trueAnswer;
+    }
+
+    public boolean isFalseAnswer() {
+        return falseAnswer;
+    }
+
+    public void setFalseAnswer(boolean falseAnswer) {
+        this.falseAnswer = falseAnswer;
+    }
+
+    public boolean isUseCheat() {
+        return isUseCheat;
+    }
+
+    public void setUseCheat(boolean useCheat) {
+        isUseCheat = useCheat;
     }
 
     public void setAnswerTrueOrFalse(boolean answerTrueOrFalse) {

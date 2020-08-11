@@ -1,6 +1,9 @@
 package ir.zjafarian.quizactivity.controller;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,12 +15,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
 import ir.zjafarian.quizactivity.R;
 import ir.zjafarian.quizactivity.model.Questions;
 
@@ -27,6 +24,9 @@ public class QuizActivity extends AppCompatActivity {
     public static final String CURRENT_INDEX = "currentIndex";
     public static final String COUNTER_SCORE = "counterScore";
     public static final String COUNTER_ANSWER = "AnswerCounter";
+    public static final String Extera_QUESTION_ANSWER = "ir.zjafarian.quizactivity.questionAnswer";
+    public static final int REQUEST_CODE_CHEAT = 0;
+    public static final String SERIALIZABLE = "serializable";
     private Button mButton_true;
     private Button mButton_false;
     private TextView mTextQuestion;
@@ -35,6 +35,7 @@ public class QuizActivity extends AppCompatActivity {
     private ImageButton mButton_first;
     private ImageButton mButton_last;
     private ImageButton mButton_score;
+    private Button mButton_cheat;
     private int mCurrentIndex = 0;
     private int counterAnswer;
     private int counterScore;
@@ -58,17 +59,19 @@ public class QuizActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: " + mCurrentIndex);
         setContentView(R.layout.activity_quiz);
+        setById();
         if (savedInstanceState != null) {
             Log.d(TAG, "savedInstanceState: " + mCurrentIndex);
             mCurrentIndex = savedInstanceState.getInt(CURRENT_INDEX, 0);
             counterAnswer = savedInstanceState.getInt(COUNTER_ANSWER, 0);
             counterScore = savedInstanceState.getInt(COUNTER_SCORE, 0);
+            mQuestionsBank = (Questions[]) savedInstanceState.getSerializable(SERIALIZABLE);
             availableLayout();
+            setSituationTrueAndFalseButton();
         } else
             Log.d(TAG, "savedInstanceState is null");
 
-        deserializeDataPerQuestion();
-        setById();
+
         listener();
         updateQuestions();
         updateScore();
@@ -105,6 +108,21 @@ public class QuizActivity extends AppCompatActivity {
         outState.putInt(CURRENT_INDEX, mCurrentIndex);
         outState.putInt(COUNTER_ANSWER, counterAnswer);
         outState.putInt(COUNTER_SCORE, counterScore);
+        outState.putSerializable(SERIALIZABLE, mQuestionsBank);
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK || data == null)
+            return;
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            boolean check = data.getBooleanExtra(CheatActivity.EXTERA_IS_CHEAT, false);
+            mQuestionsBank[mCurrentIndex].setUseCheat(check);
+
+        }
+
     }
 
     private void setById() {
@@ -123,6 +141,7 @@ public class QuizActivity extends AppCompatActivity {
         mLinearLayout_over.setVisibility(View.GONE);
         mButton_reset = findViewById(R.id.btn_reset_game);
         mTextView_result = findViewById(R.id.textView_result_score);
+        mButton_cheat = findViewById(R.id.btn_cheat);
         mCurrentIndex = 0;
         counterAnswer = 0;
         counterScore = 0;
@@ -133,6 +152,7 @@ public class QuizActivity extends AppCompatActivity {
         int questionTextId = mQuestionsBank[mCurrentIndex].getQuestionResId();
         mTextQuestion.setText(questionTextId);
         mTextQuestion.setTextColor(Color.BLACK);
+
     }
 
     private void updateScore() {
@@ -214,11 +234,23 @@ public class QuizActivity extends AppCompatActivity {
             }
         });
 
+        mButton_cheat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(QuizActivity.this, CheatActivity.class);
+                intent.putExtra(Extera_QUESTION_ANSWER, mQuestionsBank[mCurrentIndex].
+                        isAnswerTrueOrFalse());
+                startActivityForResult(intent, REQUEST_CODE_CHEAT);
+
+
+            }
+        });
+
 
     }
 
     private void setSituationTrueAndFalseButton() {
-        deserializeDataPerQuestion();
+        //serializeDataPerQuestion();
         if (mQuestionsBank[mCurrentIndex].isTrueAnswer())
             mButton_true.setEnabled(false);
         else mButton_true.setEnabled(true);
@@ -229,35 +261,52 @@ public class QuizActivity extends AppCompatActivity {
 
     private void checkAnswer(boolean userAnswer) {
         if (mQuestionsBank[mCurrentIndex].isAnswerTrueOrFalse() == userAnswer) {
-            Toast toast = Toast.makeText(QuizActivity.this, R.string.message_correct,
-                    Toast.LENGTH_LONG);
-            toast.getView().setBackgroundColor(Color.GREEN);
-            toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
-                    0);
-            toast.show();
-            mTextQuestion.setTextColor(Color.GREEN);
-            if (userAnswer == true) {
-                mQuestionsBank[mCurrentIndex].setTrueAnswer(true);
+            if (mQuestionsBank[mCurrentIndex].isUseCheat()) {
+                Toast toast = Toast.makeText(this, R.string.message_cheat,
+                        Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
+                        0);
+                toast.show();
+
             } else {
-                mQuestionsBank[mCurrentIndex].setFalseAnswer(true);
+                Toast toast = Toast.makeText(this, R.string.message_correct,
+                        Toast.LENGTH_LONG);
+                toast.getView().setBackgroundColor(Color.GREEN);
+                toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
+                        0);
+                toast.show();
+                mTextQuestion.setTextColor(Color.GREEN);
+                if (userAnswer == true) {
+                    mQuestionsBank[mCurrentIndex].setTrueAnswer(true);
+                } else {
+                    mQuestionsBank[mCurrentIndex].setFalseAnswer(true);
+                }
+                counterScore++;
             }
-            counterScore++;
+
         } else {
-            Toast toast = Toast.makeText(QuizActivity.this, R.string.message_in_correct,
-                    Toast.LENGTH_LONG);
-            toast.getView().setBackgroundColor(Color.RED);
-            toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
-                    0);
-            toast.show();
-            mTextQuestion.setTextColor(Color.RED);
-            if (userAnswer == false) {
-                mQuestionsBank[mCurrentIndex].setTrueAnswer(true);
+            if (mQuestionsBank[mCurrentIndex].isUseCheat()) {
+                Toast toast = Toast.makeText(this, R.string.message_cheat,
+                        Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
+                        0);
+                toast.show();
             } else {
-                mQuestionsBank[mCurrentIndex].setFalseAnswer(true);
+                Toast toast = Toast.makeText(this, R.string.message_in_correct,
+                        Toast.LENGTH_LONG);
+                toast.getView().setBackgroundColor(Color.RED);
+                toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
+                        0);
+                toast.show();
+                mTextQuestion.setTextColor(Color.RED);
+                if (userAnswer == false) {
+                    mQuestionsBank[mCurrentIndex].setTrueAnswer(true);
+                } else {
+                    mQuestionsBank[mCurrentIndex].setFalseAnswer(true);
+                }
             }
         }
         counterAnswer++;
-        serializeDataPerQuestion();
     }
 
     private void availableLayout() {
@@ -274,17 +323,8 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
-    private void serializeDataPerQuestion() {
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream("QuestionSerialize");
-            ObjectOutputStream outputStream = new ObjectOutputStream(fileOutputStream);
-            outputStream.writeObject(mQuestionsBank[mCurrentIndex]);
-            outputStream.close();
-            fileOutputStream.close();
-        } catch (IOException i) {
-            i.printStackTrace();
-        }
-    }
+
+/*
 
     private void deserializeDataPerQuestion() {
         try {
@@ -304,5 +344,6 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
+*/
 
 }

@@ -12,5 +12,9 @@
     <string name="question_americas">کشور آمریکا پرجمعیت ترین کشور دنیا است.</string>
     <string name="question_asia">قاره آسیا در نیم کره جنوبی جهان واقع شده است.</string>
     <string name="button_next">بعدي</string>
+    <string name="button_question_cheat">آيا براي تقلب كردن مطمئن هستيد؟</string>
+    <string name="button_answer_cheat">نمايش تقلب</string>
+    <string name="button_cheat">تقلب</string>
+    <string name="message_cheat">شما تقلب كرديد</string>
 
 </resources>
