@@ -16,5 +16,26 @@
     <string name="button_answer_cheat">نمايش تقلب</string>
     <string name="button_cheat">تقلب</string>
     <string name="message_cheat">شما تقلب كرديد</string>
+    <string name="button_setting">تنظيمات</string>
+    <string name="select_size_text">Select Size Text</string>
+    <string name="radio_btn_small">Small</string>
+    <string name="radio_btn_medium">Medium</string>
+    <string name="radio_btn_large">Large</string>
+    <string name="text_select_color_background">Select Color Background</string>
+    <string name="text_rd_btn_lightred">LightRed</string>
+    <string name="text_rd_btn_lightblue">LightBlue</string>
+    <string name="text_rd_btn_lightgreen">LightGreen</string>
+    <string name="text_rd_btn_white">White</string>
+    <string name="text_true_answer_button">True Answer Button</string>
+    <string name="text_show">Show</string>
+    <string name="text_hide">Hide</string>
+    <string name="text_false_answer_button">False Answer Button</string>
+    <string name="text_next_button">Next Button</string>
+    <string name="text_previous_button">Previous Button</string>
+    <string name="text_first_button">First Button</string>
+    <string name="text_last_button">Last Button</string>
+    <string name="text_cheat_button">Cheat Button</string>
+    <string name="text_save">Save</string>
+    <string name="text_discard">Discard</string>
 
 </resources>

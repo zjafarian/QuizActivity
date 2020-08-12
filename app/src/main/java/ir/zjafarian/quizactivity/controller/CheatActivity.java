@@ -23,7 +23,7 @@ public class CheatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_cheat);
         setId();
         if (savedInstanceState != null) {
-            mIsAnswerTrue = getIntent().getBooleanExtra(QuizActivity.Extera_QUESTION_ANSWER,
+            mIsAnswerTrue = getIntent().getBooleanExtra(QuizActivity.EXTRA_QUESTION_ANSWER,
                     false);
             setTextAnswerCheat();
             setShownAnswerResult(true);
