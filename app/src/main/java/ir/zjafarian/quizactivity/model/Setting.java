@@ -5,21 +5,15 @@ import java.io.Serializable;
 import ir.zjafarian.quizactivity.controller.QuizActivity;
 
 public class Setting implements Serializable {
-    private SizeText sizeText;
-    private ColorBackground colorBackground;
-    private boolean[] settingButtonAnswer = new boolean[2];
-    private boolean[] settingButtonArrows = new boolean[4];
-    private boolean settingCheatButton = true;
-
-    {
-        for (int i = 0; i < 4; i++) {
-            settingButtonArrows[i] = true;
-        }
-        for (int i = 0; i < 2; i++) {
-            settingButtonAnswer[i] = true;
-        }
-    }
-
+    private SizeText sizeText = SizeText.MEDIUM;
+    private ColorBackground colorBackground = ColorBackground.White;
+    private boolean settingButtonTrue = true;
+    private boolean settingButtonFalse = true;
+    private boolean settingButtonNext = true;
+    private boolean settingButtonPrevious = true;
+    private boolean settingButtonFirst = true;
+    private boolean settingButtonLast = true;
+    private boolean settingButtonCheat = true;
 
     public SizeText getSizeText() {
         return sizeText;
@@ -37,67 +31,59 @@ public class Setting implements Serializable {
         this.colorBackground = colorBackground;
     }
 
-    public boolean[] getSettingButtonAnswer() {
-        return settingButtonAnswer;
+    public boolean isSettingButtonTrue() {
+        return settingButtonTrue;
     }
 
-    public void setSettingButtonAnswer(boolean[] settingButtonAnswer) {
-        this.settingButtonAnswer = settingButtonAnswer;
+    public void setSettingButtonTrue(boolean settingButtonTrue) {
+        this.settingButtonTrue = settingButtonTrue;
     }
 
-    public boolean[] getSettingButtonArrows() {
-        return settingButtonArrows;
+    public boolean isSettingButtonFalse() {
+        return settingButtonFalse;
     }
 
-    public void setSettingButtonArrows(boolean[] settingButtonArrows) {
-        this.settingButtonArrows = settingButtonArrows;
+    public void setSettingButtonFalse(boolean settingButtonFalse) {
+        this.settingButtonFalse = settingButtonFalse;
     }
 
-    public boolean isSettingCheatButton() {
-        return settingCheatButton;
+    public boolean isSettingButtonNext() {
+        return settingButtonNext;
     }
 
-    public void setSettingCheatButton(boolean settingCheatButton) {
-        this.settingCheatButton = settingCheatButton;
+    public void setSettingButtonNext(boolean settingButtonNext) {
+        this.settingButtonNext = settingButtonNext;
     }
 
-    public void setFieldSetting(boolean cheatButton, boolean[] buttonAnswer, boolean[]
-            buttonArrows, String size, String color) {
-        settingCheatButton = cheatButton;
-        settingButtonAnswer = buttonAnswer;
-        settingButtonArrows = buttonArrows;
-        switch (color) {
-            case "LightRed":
-                colorBackground = ColorBackground.LightRed;
-                break;
-            case "LightBlue":
-                colorBackground = ColorBackground.LightBlue;
-                break;
-            case "LightGreen":
-                colorBackground = ColorBackground.LightGreen;
-                break;
-            case "White":
-                colorBackground = ColorBackground.White;
-                break;
-            default:
-                System.out.println("not found");
-                break;
-        }
-        switch (size) {
-            case "SMALL":
-                sizeText = SizeText.SMALL;
-                break;
-            case "MEDIUM":
-                sizeText = SizeText.MEDIUM;
-                break;
-            case "LARGE":
-                sizeText = SizeText.LARGE;
-                break;
+    public boolean isSettingButtonPrevious() {
+        return settingButtonPrevious;
+    }
 
-            default:
-                System.out.println("not found");
-                break;
-        }
+    public void setSettingButtonPrevious(boolean settingButtonPrevious) {
+        this.settingButtonPrevious = settingButtonPrevious;
+    }
 
+    public boolean isSettingButtonFirst() {
+        return settingButtonFirst;
+    }
+
+    public void setSettingButtonFirst(boolean settingButtonFirst) {
+        this.settingButtonFirst = settingButtonFirst;
+    }
+
+    public boolean isSettingButtonLast() {
+        return settingButtonLast;
+    }
+
+    public void setSettingButtonLast(boolean settingButtonLast) {
+        this.settingButtonLast = settingButtonLast;
+    }
+
+    public boolean isSettingButtonCheat() {
+        return settingButtonCheat;
+    }
+
+    public void setSettingButtonCheat(boolean settingButtonCheat) {
+        this.settingButtonCheat = settingButtonCheat;
     }
 }

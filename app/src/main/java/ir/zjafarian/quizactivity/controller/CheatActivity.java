@@ -1,14 +1,14 @@
 package ir.zjafarian.quizactivity.controller;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import ir.zjafarian.quizactivity.R;
-import ir.zjafarian.quizactivity.controller.QuizActivity;
 
 public class CheatActivity extends AppCompatActivity {
     public static final String EXTERA_IS_CHEAT = "ir.zjafarian.quizactivity.isCheat";

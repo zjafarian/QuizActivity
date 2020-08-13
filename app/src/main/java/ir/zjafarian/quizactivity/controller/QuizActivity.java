@@ -3,8 +3,6 @@ package ir.zjafarian.quizactivity.controller;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -15,13 +13,12 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.Serializable;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import ir.zjafarian.quizactivity.R;
-import ir.zjafarian.quizactivity.model.ColorBackground;
 import ir.zjafarian.quizactivity.model.Questions;
 import ir.zjafarian.quizactivity.model.Setting;
-import ir.zjafarian.quizactivity.model.SizeText;
 
 
 public class QuizActivity extends AppCompatActivity {
@@ -34,11 +31,7 @@ public class QuizActivity extends AppCompatActivity {
     public static final String SERIALIZABLE_BANK_QUESTION = "serializableBankQuestion";
     public static final int REQUEST_CODE_SETTING = 1;
     public static final String SERIALIZABLE_SETTING = "SerializableSetting";
-    public static final String EXTRA_ANSWER_PUT = "ir.zjafarian.quizactivity.answerPut";
-    public static final String EXTRA_ARROWS_PUT = "ir.zjafarian.quizactivity.arrowsPut";
-    public static final String EXTRA_CHEAT_PUT = "ir.zjafarian.quizactivity.cheatPut";
-    public static final String EXTRA_COLOR_PUT = "ir.zjafarian.quizactivity.colorPut";
-    public static final String EXTRA_SIZE_PUT = "ir.zjafarian.quizactivity.sizePut";
+    public static final String EXTRA_PUT_SETTING = "put_setting";
     private Button mButton_true;
     private Button mButton_false;
     private TextView mTextQuestion;
@@ -58,12 +51,7 @@ public class QuizActivity extends AppCompatActivity {
     private ViewGroup mLinearLayout_over;
     private ImageButton mButton_reset;
     private TextView mTextView_result;
-    private Setting setting;
-    private boolean[] answer = new boolean[2];
-    private boolean[] arrows = new boolean[4];
-    private boolean cheat = true;
-    private String size=" ";
-    private String color=" ";
+    private Setting setting = new Setting();
     private Questions[] mQuestionsBank = {
             new Questions(R.string.question_australia, false),
             new Questions(R.string.question_oceans, true),
@@ -91,41 +79,6 @@ public class QuizActivity extends AppCompatActivity {
                 setSituationTrueAndFalseButton();
             } else if (savedInstanceState.containsKey(SERIALIZABLE_SETTING)) {
                 setting = (Setting) savedInstanceState.getSerializable(SERIALIZABLE_SETTING);
-                cheat = setting.isSettingCheatButton();
-                arrows = setting.getSettingButtonArrows();
-                answer = setting.getSettingButtonAnswer();
-                switch (setting.getColorBackground()) {
-                    case LightRed:
-                        color = "LightRed";
-                        break;
-                    case LightBlue:
-                        color = "LightBlue";
-                        break;
-                    case LightGreen:
-                        color = "LightGreen";
-                        break;
-                    case White:
-                        color = "White";
-                        break;
-                    default:
-                        System.out.println("not found");
-                        break;
-                }
-                switch (setting.getSizeText()) {
-                    case SMALL:
-                        size = "SMALL";
-                        break;
-                    case MEDIUM:
-                        size = "MEDIUM";
-                        break;
-                    case LARGE:
-                        size = "LARGE";
-                        break;
-
-                    default:
-                        System.out.println("not found");
-                        break;
-                }
             }
         } else
             Log.d(TAG, "savedInstanceState is null");
@@ -167,11 +120,6 @@ public class QuizActivity extends AppCompatActivity {
         outState.putInt(CURRENT_INDEX, mCurrentIndex);
         outState.putInt(COUNTER_ANSWER, counterAnswer);
         outState.putInt(COUNTER_SCORE, counterScore);
-        outState.putBoolean("cheatSituation", setting.isSettingCheatButton());
-        outState.putBooleanArray("answerSituation", setting.getSettingButtonAnswer());
-        outState.putBooleanArray("arrowsSituation", setting.getSettingButtonArrows());
-        outState.putString("sizeSituation", size);
-        outState.putString("colorSituation", color);
         outState.putSerializable(SERIALIZABLE_BANK_QUESTION, mQuestionsBank);
         outState.putSerializable(SERIALIZABLE_SETTING, setting);
     }
@@ -185,12 +133,7 @@ public class QuizActivity extends AppCompatActivity {
             boolean check = data.getBooleanExtra(CheatActivity.EXTERA_IS_CHEAT, false);
             mQuestionsBank[mCurrentIndex].setUseCheat(check);
         } else if (requestCode == REQUEST_CODE_SETTING) {
-            answer = data.getBooleanArrayExtra(SettingActivity.EXTERA_ANSWER);
-            arrows = data.getBooleanArrayExtra(SettingActivity.EXTRA_ARROW);
-            cheat = data.getBooleanExtra(SettingActivity.EXTRA_CHEAT, false);
-            color = data.getStringExtra(SettingActivity.EXTRA_COLOR);
-            size = data.getStringExtra(SettingActivity.EXTRA_SIZE);
-            setting.setFieldSetting(cheat, answer, arrows, size, color);
+            setting = (Setting) data.getSerializableExtra(SettingActivity.EXTRA_GET_SETTING);
             changeSizeTexts();
             changeColorBackground();
             changeHideAndShowButtons();
@@ -199,32 +142,13 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void changeHideAndShowButtons() {
-        answer = setting.getSettingButtonAnswer();
-        if (answer[0]) {
-            mButton_true.setVisibility(View.VISIBLE);
-        } else mButton_true.setVisibility(View.GONE);
-        if (answer[1]) {
-            mButton_false.setVisibility(View.VISIBLE);
-        } else mButton_false.setVisibility(View.GONE);
-
-        arrows = setting.getSettingButtonArrows();
-
-        if (arrows[0]) {
-            mButton_next.setVisibility(View.VISIBLE);
-        } else mButton_next.setVisibility(View.GONE);
-        if (arrows[1]) {
-            mButton_previous.setVisibility(View.VISIBLE);
-        } else mButton_previous.setVisibility(View.GONE);
-        if (arrows[2]) {
-            mButton_first.setVisibility(View.VISIBLE);
-        } else mButton_first.setVisibility(View.GONE);
-        if (arrows[3]) {
-            mButton_last.setVisibility(View.VISIBLE);
-        } else mButton_last.setVisibility(View.GONE);
-
-        if (setting.isSettingCheatButton())
-            mButton_cheat.setVisibility(View.VISIBLE);
-        else mButton_cheat.setVisibility(View.GONE);
+        mButton_true.setVisibility(setting.isSettingButtonTrue() ? View.VISIBLE : View.GONE);
+        mButton_false.setVisibility(setting.isSettingButtonFalse() ? View.VISIBLE : View.GONE);
+        mButton_next.setVisibility(setting.isSettingButtonNext() ? View.VISIBLE : View.GONE);
+        mButton_previous.setVisibility(setting.isSettingButtonPrevious() ? View.VISIBLE : View.GONE);
+        mButton_first.setVisibility(setting.isSettingButtonFirst() ? View.VISIBLE : View.GONE);
+        mButton_last.setVisibility(setting.isSettingButtonLast() ? View.VISIBLE : View.GONE);
+        mButton_cheat.setVisibility(setting.isSettingButtonCheat() ? View.VISIBLE : View.GONE);
     }
 
     private void changeColorBackground() {
@@ -405,6 +329,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(QuizActivity.this, SettingActivity.class);
+                intent.putExtra(EXTRA_PUT_SETTING, setting);
                 startActivityForResult(intent, REQUEST_CODE_SETTING);
             }
         });
