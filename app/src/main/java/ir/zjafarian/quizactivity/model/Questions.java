@@ -10,7 +10,6 @@ public class Questions implements Serializable {
     private boolean trueAnswer;
     private boolean falseAnswer;
     private boolean isUseCheat = false;
-
     public Questions() {
     }
 

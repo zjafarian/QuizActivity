@@ -18,11 +18,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.List;
+import java.util.UUID;
+
 import ir.zjafarian.quizactivity.R;
 import ir.zjafarian.quizactivity.controller.activity.CheatActivity;
 import ir.zjafarian.quizactivity.controller.activity.SettingActivity;
 import ir.zjafarian.quizactivity.model.Questions;
 import ir.zjafarian.quizactivity.model.Setting;
+import ir.zjafarian.quizactivity.repository.QuestionsRepository;
 
 import static ir.zjafarian.quizactivity.controller.fragment.CheatFragment.EXTERA_IS_CHEAT;
 
@@ -40,6 +44,7 @@ public class QuizFragment extends Fragment {
     public static final String SERIALIZABLE_SETTING = "SerializableSetting";
     public static final String EXTRA_PUT_SETTING = "put_setting";
     public static final String CHECK_SETTING = "check_setting";
+    public static final String SAVE_UI_ID = "save_UIId";
     private Button mButton_true;
     private Button mButton_false;
     private TextView mTextQuestion;
@@ -50,7 +55,7 @@ public class QuizFragment extends Fragment {
     private ImageButton mButton_score;
     private Button mButton_cheat;
     private Button mButton_setting;
-    private int mCurrentIndex = 0;
+    private int mCurrentIndex;
     private int counterAnswer;
     private int counterScore;
     private TextView mTextScore;
@@ -60,8 +65,10 @@ public class QuizFragment extends Fragment {
     private ImageButton mButton_reset;
     private TextView mTextView_result;
     private Setting setting;
-    private Questions[] mQuestionsBank;
     private boolean checkSetting;
+    private UUID mUUIDQuestion;
+    private List<Questions> mQuestionsBunkList;
+    private QuestionsRepository mQuestionsRepositoryActivity;
 
 
     public QuizFragment() {
@@ -71,26 +78,23 @@ public class QuizFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mQuestionsRepositoryActivity = QuestionsRepository.getInstance();
+        mQuestionsBunkList = mQuestionsRepositoryActivity.getQuestions();
         setting = new Setting();
         checkSetting = false;
-        mQuestionsBank = new Questions[]{
-                new Questions(R.string.question_australia, false),
-                new Questions(R.string.question_oceans, true),
-                new Questions(R.string.question_mideast, false),
-                new Questions(R.string.question_africa, true),
-                new Questions(R.string.question_americas, false),
-                new Questions(R.string.question_asia, false)
-        };
+        mUUIDQuestion = (UUID) getActivity().getIntent().getSerializableExtra(QuestionListFragment.EXTRA_GET_QUESTION_ID);
         mCurrentIndex = 0;
         counterAnswer = 0;
         counterScore = 0;
+        setQuestion();
         if (savedInstanceState != null) {
             Log.d(TAG, "savedInstanceState: " + mCurrentIndex);
             if (savedInstanceState.containsKey(SERIALIZABLE_BANK_QUESTION)) {
                 mCurrentIndex = savedInstanceState.getInt(CURRENT_INDEX, 0);
                 counterAnswer = savedInstanceState.getInt(COUNTER_ANSWER, 0);
                 counterScore = savedInstanceState.getInt(COUNTER_SCORE, 0);
-                mQuestionsBank = (Questions[]) savedInstanceState.getSerializable(SERIALIZABLE_BANK_QUESTION);
+                mUUIDQuestion = (UUID) savedInstanceState.getSerializable(SAVE_UI_ID);
+                setQuestion();
             }
             if (savedInstanceState.containsKey(SERIALIZABLE_SETTING)) {
                 setting = (Setting) savedInstanceState.getSerializable(SERIALIZABLE_SETTING);
@@ -99,6 +103,14 @@ public class QuizFragment extends Fragment {
         } else
             Log.d(TAG, "savedInstanceState is null");
 
+    }
+
+    private void setQuestion() {
+        for (int i = 0; i < mQuestionsBunkList.size(); i++) {
+            if (mQuestionsBunkList.get(i).getUUID().equals(mUUIDQuestion)) {
+                mCurrentIndex = i;
+            }
+        }
     }
 
     @Override
@@ -113,8 +125,8 @@ public class QuizFragment extends Fragment {
                 availableLayout();
                 setSituationTrueAndFalseButton();
             }
-            if (savedInstanceState.containsKey(SERIALIZABLE_SETTING)){
-                if (checkSetting){
+            if (savedInstanceState.containsKey(SERIALIZABLE_SETTING)) {
+                if (checkSetting) {
                     changeSizeTexts();
                     changeColorBackground();
                     changeHideAndShowButtons();
@@ -123,7 +135,7 @@ public class QuizFragment extends Fragment {
         }
         listener();
         updateQuestions();
-        updateScore();
+        setQuestion();
         return view;
     }
 
@@ -158,9 +170,9 @@ public class QuizFragment extends Fragment {
         outState.putInt(CURRENT_INDEX, mCurrentIndex);
         outState.putInt(COUNTER_ANSWER, counterAnswer);
         outState.putInt(COUNTER_SCORE, counterScore);
-        outState.putBoolean(CHECK_SETTING,checkSetting);
-        outState.putSerializable(SERIALIZABLE_BANK_QUESTION, mQuestionsBank);
+        outState.putBoolean(CHECK_SETTING, checkSetting);
         outState.putSerializable(SERIALIZABLE_SETTING, setting);
+        outState.putSerializable(SAVE_UI_ID,mUUIDQuestion);
     }
 
     @Override
@@ -170,7 +182,7 @@ public class QuizFragment extends Fragment {
             return;
         if (requestCode == REQUEST_CODE_CHEAT) {
             boolean check = data.getBooleanExtra(EXTERA_IS_CHEAT, false);
-            mQuestionsBank[mCurrentIndex].setUseCheat(check);
+            mQuestionsBunkList.get(mCurrentIndex).setUseCheat(check);
         } else if (requestCode == REQUEST_CODE_SETTING) {
             checkSetting = true;
             setting = (Setting) data.getSerializableExtra(SettingActivity.EXTRA_GET_SETTING);
@@ -264,10 +276,9 @@ public class QuizFragment extends Fragment {
     }
 
     private void updateQuestions() {
-        int questionTextId = mQuestionsBank[mCurrentIndex].getQuestionResId();
+        int questionTextId = mQuestionsBunkList.get(mCurrentIndex).getQuestionResId();
         mTextQuestion.setText(questionTextId);
         mTextQuestion.setTextColor(Color.BLACK);
-
     }
 
     private void updateScore() {
@@ -296,7 +307,7 @@ public class QuizFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                mCurrentIndex = (mCurrentIndex + 1) % mQuestionsBank.length;
+                mCurrentIndex = (mCurrentIndex + 1) % mQuestionsBunkList.size();
                 setSituationTrueAndFalseButton();
                 updateQuestions();
                 availableLayout();
@@ -307,7 +318,7 @@ public class QuizFragment extends Fragment {
         mButton_previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCurrentIndex = (mCurrentIndex - 1 + mQuestionsBank.length) % mQuestionsBank.length;
+                mCurrentIndex = (mCurrentIndex - 1 + mQuestionsBunkList.size()) % mQuestionsBunkList.size();
                 setSituationTrueAndFalseButton();
                 updateQuestions();
                 availableLayout();
@@ -328,7 +339,7 @@ public class QuizFragment extends Fragment {
         mButton_last.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCurrentIndex = mQuestionsBank.length - 1;
+                mCurrentIndex = mQuestionsBunkList.size() - 1;
                 setSituationTrueAndFalseButton();
                 updateQuestions();
                 availableLayout();
@@ -357,8 +368,7 @@ public class QuizFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CheatActivity.class);
-                intent.putExtra(EXTRA_QUESTION_ANSWER, mQuestionsBank[mCurrentIndex].
-                        isAnswerTrueOrFalse());
+                intent.putExtra(EXTRA_QUESTION_ANSWER, mQuestionsBunkList.get(mCurrentIndex).isAnswerTrueOrFalse());
                 startActivityForResult(intent, REQUEST_CODE_CHEAT);
             }
         });
@@ -377,17 +387,18 @@ public class QuizFragment extends Fragment {
 
     private void setSituationTrueAndFalseButton() {
         //serializeDataPerQuestion();
-        if (mQuestionsBank[mCurrentIndex].isTrueAnswer())
+        if (mQuestionsBunkList.get(mCurrentIndex).isTrueAnswer())
             mButton_true.setEnabled(false);
         else mButton_true.setEnabled(true);
-        if (mQuestionsBank[mCurrentIndex].isFalseAnswer())
+        if (mQuestionsBunkList.get(mCurrentIndex).isFalseAnswer())
             mButton_false.setEnabled(false);
         else mButton_false.setEnabled(true);
     }
 
     private void checkAnswer(boolean userAnswer) {
-        if (mQuestionsBank[mCurrentIndex].isAnswerTrueOrFalse() == userAnswer) {
-            if (mQuestionsBank[mCurrentIndex].isUseCheat()) {
+        if (mQuestionsBunkList.get(mCurrentIndex).isAnswerTrueOrFalse() == userAnswer) {
+
+            if (mQuestionsBunkList.get(mCurrentIndex).isUseCheat()) {
                 Toast toast = Toast.makeText(getActivity(), R.string.message_cheat,
                         Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
@@ -403,15 +414,15 @@ public class QuizFragment extends Fragment {
                 toast.show();
                 mTextQuestion.setTextColor(Color.GREEN);
                 if (userAnswer == true) {
-                    mQuestionsBank[mCurrentIndex].setTrueAnswer(true);
+                    mQuestionsBunkList.get(mCurrentIndex).setTrueAnswer(true);
                 } else {
-                    mQuestionsBank[mCurrentIndex].setFalseAnswer(true);
+                    mQuestionsBunkList.get(mCurrentIndex).setFalseAnswer(true);
                 }
                 counterScore++;
             }
 
         } else {
-            if (mQuestionsBank[mCurrentIndex].isUseCheat()) {
+            if (mQuestionsBunkList.get(mCurrentIndex).isUseCheat()) {
                 Toast toast = Toast.makeText(getActivity(), R.string.message_cheat,
                         Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
@@ -426,9 +437,9 @@ public class QuizFragment extends Fragment {
                 toast.show();
                 mTextQuestion.setTextColor(Color.RED);
                 if (userAnswer == false) {
-                    mQuestionsBank[mCurrentIndex].setTrueAnswer(true);
+                    mQuestionsBunkList.get(mCurrentIndex).setTrueAnswer(true);
                 } else {
-                    mQuestionsBank[mCurrentIndex].setFalseAnswer(true);
+                    mQuestionsBunkList.get(mCurrentIndex).setFalseAnswer(true);
                 }
             }
         }
@@ -436,7 +447,7 @@ public class QuizFragment extends Fragment {
     }
 
     private void availableLayout() {
-        if (counterAnswer == mQuestionsBank.length) {
+        if (counterAnswer == mQuestionsBunkList.size()) {
             if (mLinearLayout_game.getVisibility() == View.VISIBLE &&
                     mLinearLayout_over.getVisibility() == View.GONE) {
                 mLinearLayout_game.setVisibility(View.GONE);
