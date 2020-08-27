@@ -1,4 +1,4 @@
-package ir.zjafarian.quizactivity.controller;
+package ir.zjafarian.quizactivity.controller.fragment;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,16 +14,22 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import ir.zjafarian.quizactivity.R;
+import ir.zjafarian.quizactivity.controller.activity.CheatActivity;
+import ir.zjafarian.quizactivity.controller.activity.SettingActivity;
 import ir.zjafarian.quizactivity.model.Questions;
 import ir.zjafarian.quizactivity.model.Setting;
 
+import static ir.zjafarian.quizactivity.controller.fragment.CheatFragment.EXTERA_IS_CHEAT;
 
-public class QuizActivity extends AppCompatActivity {
-    public static final String TAG = "QuizActivity";
+
+public class QuizFragment extends Fragment {
+
+    public static final String TAG = "QuizActivityFragment";
     public static final String CURRENT_INDEX = "currentIndex";
     public static final String COUNTER_SCORE = "counterScore";
     public static final String COUNTER_ANSWER = "AnswerCounter";
@@ -32,6 +39,7 @@ public class QuizActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_SETTING = 1;
     public static final String SERIALIZABLE_SETTING = "SerializableSetting";
     public static final String EXTRA_PUT_SETTING = "put_setting";
+    public static final String CHECK_SETTING = "check_setting";
     private Button mButton_true;
     private Button mButton_false;
     private TextView mTextQuestion;
@@ -51,23 +59,31 @@ public class QuizActivity extends AppCompatActivity {
     private ViewGroup mLinearLayout_over;
     private ImageButton mButton_reset;
     private TextView mTextView_result;
-    private Setting setting = new Setting();
-    private Questions[] mQuestionsBank = {
-            new Questions(R.string.question_australia, false),
-            new Questions(R.string.question_oceans, true),
-            new Questions(R.string.question_mideast, false),
-            new Questions(R.string.question_africa, true),
-            new Questions(R.string.question_americas, false),
-            new Questions(R.string.question_asia, false)
-    };
+    private Setting setting;
+    private Questions[] mQuestionsBank;
+    private boolean checkSetting;
 
+
+    public QuizFragment() {
+        // Required empty public constructor
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: " + mCurrentIndex);
-        setContentView(R.layout.activity_quiz);
-        setById();
+        setting = new Setting();
+        checkSetting = false;
+        mQuestionsBank = new Questions[]{
+                new Questions(R.string.question_australia, false),
+                new Questions(R.string.question_oceans, true),
+                new Questions(R.string.question_mideast, false),
+                new Questions(R.string.question_africa, true),
+                new Questions(R.string.question_americas, false),
+                new Questions(R.string.question_asia, false)
+        };
+        mCurrentIndex = 0;
+        counterAnswer = 0;
+        counterScore = 0;
         if (savedInstanceState != null) {
             Log.d(TAG, "savedInstanceState: " + mCurrentIndex);
             if (savedInstanceState.containsKey(SERIALIZABLE_BANK_QUESTION)) {
@@ -75,70 +91,115 @@ public class QuizActivity extends AppCompatActivity {
                 counterAnswer = savedInstanceState.getInt(COUNTER_ANSWER, 0);
                 counterScore = savedInstanceState.getInt(COUNTER_SCORE, 0);
                 mQuestionsBank = (Questions[]) savedInstanceState.getSerializable(SERIALIZABLE_BANK_QUESTION);
-                availableLayout();
-                setSituationTrueAndFalseButton();
-            } else if (savedInstanceState.containsKey(SERIALIZABLE_SETTING)) {
+            }
+            if (savedInstanceState.containsKey(SERIALIZABLE_SETTING)) {
                 setting = (Setting) savedInstanceState.getSerializable(SERIALIZABLE_SETTING);
+                checkSetting = savedInstanceState.getBoolean(CHECK_SETTING);
             }
         } else
             Log.d(TAG, "savedInstanceState is null");
 
-
-        listener();
-        updateQuestions();
-        updateScore();
     }
 
     @Override
-    protected void onStart() {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_quiz, container, false);
+        setById(view);
+        if (savedInstanceState != null) {
+            Log.d(TAG, "savedInstanceState: " + mCurrentIndex);
+            if (savedInstanceState.containsKey(SERIALIZABLE_BANK_QUESTION)) {
+                availableLayout();
+                setSituationTrueAndFalseButton();
+            }
+            if (savedInstanceState.containsKey(SERIALIZABLE_SETTING)){
+                if (checkSetting){
+                    changeSizeTexts();
+                    changeColorBackground();
+                    changeHideAndShowButtons();
+                }
+            }
+        }
+        listener();
+        updateQuestions();
+        updateScore();
+        return view;
+    }
+
+    @Override
+    public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart: " + mCurrentIndex);
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: " + mCurrentIndex);
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         Log.d(TAG, "onPause: " + mCurrentIndex);
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy: " + mCurrentIndex);
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.d(TAG, "onSaveInstanceState: " + mCurrentIndex);
         outState.putInt(CURRENT_INDEX, mCurrentIndex);
         outState.putInt(COUNTER_ANSWER, counterAnswer);
         outState.putInt(COUNTER_SCORE, counterScore);
+        outState.putBoolean(CHECK_SETTING,checkSetting);
         outState.putSerializable(SERIALIZABLE_BANK_QUESTION, mQuestionsBank);
         outState.putSerializable(SERIALIZABLE_SETTING, setting);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK || data == null)
             return;
         if (requestCode == REQUEST_CODE_CHEAT) {
-            boolean check = data.getBooleanExtra(CheatActivity.EXTERA_IS_CHEAT, false);
+            boolean check = data.getBooleanExtra(EXTERA_IS_CHEAT, false);
             mQuestionsBank[mCurrentIndex].setUseCheat(check);
         } else if (requestCode == REQUEST_CODE_SETTING) {
+            checkSetting = true;
             setting = (Setting) data.getSerializableExtra(SettingActivity.EXTRA_GET_SETTING);
             changeSizeTexts();
             changeColorBackground();
             changeHideAndShowButtons();
         }
 
+    }
+
+    private void setById(View view) {
+        mButton_true = view.findViewById(R.id.btn_correct);
+        mButton_false = view.findViewById(R.id.btn_in_correct);
+        mTextQuestion = view.findViewById(R.id.text_question);
+        mButton_next = (ImageButton) view.findViewById(R.id.btn_next);
+        mButton_previous = (ImageButton) view.findViewById(R.id.btn_previous);
+        mButton_first = (ImageButton) view.findViewById(R.id.btn_first);
+        mButton_last = (ImageButton) view.findViewById(R.id.btn_last);
+        mButton_score = (ImageButton) view.findViewById(R.id.btn_score);
+        mTextScore = view.findViewById(R.id.textView_score);
+        mLinearLayout_game = view.findViewById(R.id.layout_game);
+        mLinearLayout_game.setVisibility(View.VISIBLE);
+        mLinearLayout_over = view.findViewById(R.id.layout_over);
+        mLinearLayout_over.setVisibility(View.GONE);
+        mButton_reset = view.findViewById(R.id.btn_reset_game);
+        mTextView_result = view.findViewById(R.id.textView_result_score);
+        mButton_cheat = view.findViewById(R.id.btn_cheat);
+        mButton_setting = view.findViewById(R.id.btn_setting);
+        mLayout_main = view.findViewById(R.id.layout_main);
     }
 
     private void changeHideAndShowButtons() {
@@ -149,26 +210,6 @@ public class QuizActivity extends AppCompatActivity {
         mButton_first.setVisibility(setting.isSettingButtonFirst() ? View.VISIBLE : View.GONE);
         mButton_last.setVisibility(setting.isSettingButtonLast() ? View.VISIBLE : View.GONE);
         mButton_cheat.setVisibility(setting.isSettingButtonCheat() ? View.VISIBLE : View.GONE);
-    }
-
-    private void changeColorBackground() {
-        switch (setting.getColorBackground()) {
-            case LightRed:
-                mLayout_main.setBackgroundColor(Color.RED);
-                break;
-            case LightBlue:
-                mLayout_main.setBackgroundColor(Color.BLUE);
-                break;
-            case LightGreen:
-                mLayout_main.setBackgroundColor(Color.GREEN);
-                break;
-            case White:
-                mLayout_main.setBackgroundColor(Color.WHITE);
-                break;
-            default:
-                System.out.println("not found");
-                break;
-        }
     }
 
     private void changeSizeTexts() {
@@ -202,29 +243,24 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
-    private void setById() {
-        mButton_true = findViewById(R.id.btn_correct);
-        mButton_false = findViewById(R.id.btn_in_correct);
-        mTextQuestion = findViewById(R.id.text_question);
-        mButton_next = (ImageButton) findViewById(R.id.btn_next);
-        mButton_previous = (ImageButton) findViewById(R.id.btn_previous);
-        mButton_first = (ImageButton) findViewById(R.id.btn_first);
-        mButton_last = (ImageButton) findViewById(R.id.btn_last);
-        mButton_score = (ImageButton) findViewById(R.id.btn_score);
-        mTextScore = findViewById(R.id.textView_score);
-        mLinearLayout_game = findViewById(R.id.layout_game);
-        mLinearLayout_game.setVisibility(View.VISIBLE);
-        mLinearLayout_over = findViewById(R.id.layout_over);
-        mLinearLayout_over.setVisibility(View.GONE);
-        mButton_reset = findViewById(R.id.btn_reset_game);
-        mTextView_result = findViewById(R.id.textView_result_score);
-        mButton_cheat = findViewById(R.id.btn_cheat);
-        mButton_setting = findViewById(R.id.btn_setting);
-        mLayout_main = findViewById(R.id.layout_main);
-        mCurrentIndex = 0;
-        counterAnswer = 0;
-        counterScore = 0;
-
+    private void changeColorBackground() {
+        switch (setting.getColorBackground()) {
+            case LightRed:
+                mLayout_main.setBackgroundColor(Color.RED);
+                break;
+            case LightBlue:
+                mLayout_main.setBackgroundColor(Color.BLUE);
+                break;
+            case LightGreen:
+                mLayout_main.setBackgroundColor(Color.GREEN);
+                break;
+            case White:
+                mLayout_main.setBackgroundColor(Color.WHITE);
+                break;
+            default:
+                System.out.println("not found");
+                break;
+        }
     }
 
     private void updateQuestions() {
@@ -301,7 +337,6 @@ public class QuizActivity extends AppCompatActivity {
         mButton_reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setById();
                 updateQuestions();
                 mTextScore.setVisibility(View.VISIBLE);
                 mTextQuestion.setVisibility(View.VISIBLE);
@@ -312,13 +347,16 @@ public class QuizActivity extends AppCompatActivity {
                 mButton_true.setEnabled(true);
                 mTextScore.setText("");
                 mTextView_result.setText("");
+                mCurrentIndex = 0;
+                counterScore = 0;
+                counterAnswer = 0;
             }
         });
 
         mButton_cheat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(QuizActivity.this, CheatActivity.class);
+                Intent intent = new Intent(getActivity(), CheatActivity.class);
                 intent.putExtra(EXTRA_QUESTION_ANSWER, mQuestionsBank[mCurrentIndex].
                         isAnswerTrueOrFalse());
                 startActivityForResult(intent, REQUEST_CODE_CHEAT);
@@ -328,7 +366,7 @@ public class QuizActivity extends AppCompatActivity {
         mButton_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(QuizActivity.this, SettingActivity.class);
+                Intent intent = new Intent(getActivity(), SettingActivity.class);
                 intent.putExtra(EXTRA_PUT_SETTING, setting);
                 startActivityForResult(intent, REQUEST_CODE_SETTING);
             }
@@ -350,14 +388,14 @@ public class QuizActivity extends AppCompatActivity {
     private void checkAnswer(boolean userAnswer) {
         if (mQuestionsBank[mCurrentIndex].isAnswerTrueOrFalse() == userAnswer) {
             if (mQuestionsBank[mCurrentIndex].isUseCheat()) {
-                Toast toast = Toast.makeText(this, R.string.message_cheat,
+                Toast toast = Toast.makeText(getActivity(), R.string.message_cheat,
                         Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
                         0);
                 toast.show();
 
             } else {
-                Toast toast = Toast.makeText(this, R.string.message_correct,
+                Toast toast = Toast.makeText(getActivity(), R.string.message_correct,
                         Toast.LENGTH_LONG);
                 toast.getView().setBackgroundColor(Color.GREEN);
                 toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
@@ -374,13 +412,13 @@ public class QuizActivity extends AppCompatActivity {
 
         } else {
             if (mQuestionsBank[mCurrentIndex].isUseCheat()) {
-                Toast toast = Toast.makeText(this, R.string.message_cheat,
+                Toast toast = Toast.makeText(getActivity(), R.string.message_cheat,
                         Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
                         0);
                 toast.show();
             } else {
-                Toast toast = Toast.makeText(this, R.string.message_in_correct,
+                Toast toast = Toast.makeText(getActivity(), R.string.message_in_correct,
                         Toast.LENGTH_LONG);
                 toast.getView().setBackgroundColor(Color.RED);
                 toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
@@ -413,27 +451,5 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
-
-/*
-
-    private void deserializeDataPerQuestion() {
-        try {
-            FileInputStream fileInputStream = new FileInputStream("QuestionSerialize");
-            ObjectInputStream inputStream = new ObjectInputStream(fileInputStream);
-            mQuestionsBank[mCurrentIndex] = (Questions) inputStream.readObject();
-            inputStream.close();
-            fileInputStream.close();
-        } catch (IOException i) {
-            i.printStackTrace();
-            return;
-        } catch (ClassNotFoundException c) {
-            System.out.println("Employee class not found");
-            c.printStackTrace();
-            return;
-
-        }
-    }
-
-*/
 
 }

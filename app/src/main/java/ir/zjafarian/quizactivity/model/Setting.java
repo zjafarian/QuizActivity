@@ -2,8 +2,6 @@ package ir.zjafarian.quizactivity.model;
 
 import java.io.Serializable;
 
-import ir.zjafarian.quizactivity.controller.QuizActivity;
-
 public class Setting implements Serializable {
     private SizeText sizeText = SizeText.MEDIUM;
     private ColorBackground colorBackground = ColorBackground.White;

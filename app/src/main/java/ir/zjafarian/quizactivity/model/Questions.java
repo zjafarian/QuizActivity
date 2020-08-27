@@ -1,8 +1,10 @@
 package ir.zjafarian.quizactivity.model;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class Questions implements Serializable {
+    private UUID mUUID;
     private int mQuestionResId;
     private boolean mIsAnswerTrueOrFalse;
     private boolean trueAnswer;
@@ -12,9 +14,19 @@ public class Questions implements Serializable {
     public Questions() {
     }
 
+
     public Questions(int questionResId, boolean isAnswerTrueOrFalse) {
+        mUUID = UUID.randomUUID();
         mQuestionResId = questionResId;
         mIsAnswerTrueOrFalse = isAnswerTrueOrFalse;
+    }
+
+    public UUID getUUID() {
+        return mUUID;
+    }
+
+    public void setUUID(UUID UUID) {
+        mUUID = UUID;
     }
 
     public int getQuestionResId() {

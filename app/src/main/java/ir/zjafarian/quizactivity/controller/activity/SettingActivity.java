@@ -1,4 +1,4 @@
-package ir.zjafarian.quizactivity.controller;
+package ir.zjafarian.quizactivity.controller.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import ir.zjafarian.quizactivity.R;
+import ir.zjafarian.quizactivity.controller.fragment.QuizFragment;
 import ir.zjafarian.quizactivity.model.ColorBackground;
 import ir.zjafarian.quizactivity.model.Setting;
 import ir.zjafarian.quizactivity.model.SizeText;
@@ -52,7 +53,7 @@ public class SettingActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             setting = (Setting) savedInstanceState.getSerializable(SAVE_SETTING);
         }
-        setting = (Setting) getIntent().getSerializableExtra(QuizActivity.EXTRA_PUT_SETTING);
+        setting = (Setting) getIntent().getSerializableExtra(QuizFragment.EXTRA_PUT_SETTING);
         setSettingFields();
         defaultSetting = setting;
         listener();
