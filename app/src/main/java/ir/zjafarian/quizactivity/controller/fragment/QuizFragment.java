@@ -45,6 +45,7 @@ public class QuizFragment extends Fragment {
     public static final String EXTRA_PUT_SETTING = "put_setting";
     public static final String CHECK_SETTING = "check_setting";
     public static final String SAVE_UI_ID = "save_UIId";
+    public static final String SAVE_COLOR = "save_color";
     private Button mButton_true;
     private Button mButton_false;
     private TextView mTextQuestion;
@@ -67,6 +68,7 @@ public class QuizFragment extends Fragment {
     private Setting setting;
     private boolean checkSetting;
     private UUID mUUIDQuestion;
+    private String mColorPerQuestion;
     private List<Questions> mQuestionsBunkList;
     private QuestionsRepository mQuestionsRepositoryActivity;
 
@@ -94,6 +96,7 @@ public class QuizFragment extends Fragment {
                 counterAnswer = savedInstanceState.getInt(COUNTER_ANSWER, 0);
                 counterScore = savedInstanceState.getInt(COUNTER_SCORE, 0);
                 mUUIDQuestion = (UUID) savedInstanceState.getSerializable(SAVE_UI_ID);
+                mColorPerQuestion = savedInstanceState.getString(SAVE_COLOR);
                 setQuestion();
             }
             if (savedInstanceState.containsKey(SERIALIZABLE_SETTING)) {
@@ -105,13 +108,6 @@ public class QuizFragment extends Fragment {
 
     }
 
-    private void setQuestion() {
-        for (int i = 0; i < mQuestionsBunkList.size(); i++) {
-            if (mQuestionsBunkList.get(i).getUUID().equals(mUUIDQuestion)) {
-                mCurrentIndex = i;
-            }
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -172,7 +168,8 @@ public class QuizFragment extends Fragment {
         outState.putInt(COUNTER_SCORE, counterScore);
         outState.putBoolean(CHECK_SETTING, checkSetting);
         outState.putSerializable(SERIALIZABLE_SETTING, setting);
-        outState.putSerializable(SAVE_UI_ID,mUUIDQuestion);
+        outState.putSerializable(SAVE_UI_ID, mUUIDQuestion);
+        outState.putString(SAVE_COLOR, mColorPerQuestion);
     }
 
     @Override
@@ -192,6 +189,15 @@ public class QuizFragment extends Fragment {
         }
 
     }
+
+    private void setQuestion() {
+        for (int i = 0; i < mQuestionsBunkList.size(); i++) {
+            if (mQuestionsBunkList.get(i).getUUID().equals(mUUIDQuestion)) {
+                mCurrentIndex = i;
+            }
+        }
+    }
+
 
     private void setById(View view) {
         mButton_true = view.findViewById(R.id.btn_correct);
@@ -278,7 +284,13 @@ public class QuizFragment extends Fragment {
     private void updateQuestions() {
         int questionTextId = mQuestionsBunkList.get(mCurrentIndex).getQuestionResId();
         mTextQuestion.setText(questionTextId);
-        mTextQuestion.setTextColor(Color.BLACK);
+        mColorPerQuestion = mQuestionsBunkList.get(mCurrentIndex).getColor();
+        if (mColorPerQuestion.equals("blue")) {
+            mTextQuestion.setTextColor(Color.BLUE);
+        } else if (mColorPerQuestion.equals("yellow")) {
+            mTextQuestion.setTextColor(Color.YELLOW);
+        }
+
     }
 
     private void updateScore() {

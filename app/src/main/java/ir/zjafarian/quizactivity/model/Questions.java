@@ -10,14 +10,24 @@ public class Questions implements Serializable {
     private boolean trueAnswer;
     private boolean falseAnswer;
     private boolean isUseCheat = false;
+    private String mColor;
     public Questions() {
     }
 
 
-    public Questions(int questionResId, boolean isAnswerTrueOrFalse) {
+    public Questions(int questionResId, boolean isAnswerTrueOrFalse, String color) {
         mUUID = UUID.randomUUID();
         mQuestionResId = questionResId;
         mIsAnswerTrueOrFalse = isAnswerTrueOrFalse;
+        mColor = color;
+    }
+
+    public String getColor() {
+        return mColor;
+    }
+
+    public void setColor(String color) {
+        mColor = color;
     }
 
     public UUID getUUID() {
